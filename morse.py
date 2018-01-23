@@ -6,7 +6,7 @@ from sets import Set
 # main con casos de prueba simple
 def main():
 
-    morseAPI = MorseAPI()
+    morseAPI = MorseAPI('')
     #test_string = '1101101100111'+'00000'+'1111110001111111100111111'+'00000'+'11101111111101110111'+'0000'+'11000111111'+'00000000'+'11111100111111'+'00000'+'1100001101111111101110111'+'000000'+'1101110'
     slow = "000000000000011111110000111111000011111000011111110000000000111111111111110000111111111110000011111111110000000011111100000111111111111000011111000111111000000000011111100001111111111111000000000000000000000001111111111000011111111110000000001111100000000011111100000111111111100011111000011111000000000011111000001111100000000000"
     medium = "00000000110110110011100000111111000111111001111110000000111011111111011101110000000110001111110000000001111110011111100000001100000110111111110111011100000011011100000000000"
@@ -43,8 +43,17 @@ class MorseAPI():
 
     inverseTable = {v : k for k, v in table.iteritems()}
 
-    def __init__(self):
-            pass
+    ceros13 = 0
+    ceros23 = 0
+    oneAvgLen = 0
+
+    """
+        Constructor que recibe un preambulo que consta de los simbolos '.- .   .-' (AE A)
+        y se sincroniza
+    """
+    def __init__(self,preambule):
+        if(preambule != ''):
+            self.syncronize_pulses(preambule)
 
     def testApi(self,test_string):
 
@@ -52,11 +61,11 @@ class MorseAPI():
 
         minmaxarray = self.minMax(test_string)
 
-        ceros13 = (minmaxarray[0] + minmaxarray[1])/3
-        ceros23 = (minmaxarray[0] + minmaxarray[1])*2/3
-        oneAvgLen = (minmaxarray[2] + minmaxarray[3]) / 2
+        self.ceros13 = (minmaxarray[0] + minmaxarray[1])/3
+        self.ceros23 = (minmaxarray[0] + minmaxarray[1])*2/3
+        self.oneAvgLen = (minmaxarray[2] + minmaxarray[3]) / 2
 
-        print "average de unos : " + str(oneAvgLen) + "| 1/3 de ceros : " + str(ceros13) + " | 2/3 de ceros :" + str(ceros23)
+        print "average de unos : " + str(self.oneAvgLen) + "| 1/3 de ceros : " + str(self.ceros13) + " | 2/3 de ceros :" + str(self.ceros23)
 
         ## testeo del metodo que convierte la entrada de bits en morse
         morse = self.decodeBits2Morse(test_string)
@@ -91,19 +100,16 @@ class MorseAPI():
     def decodeBits2Morse(self,bits_array):
 
         morse = ''
-        minmaxarray = self.minMax(bits_array)
-        ceros13 = (minmaxarray[0] + minmaxarray[1])/3
-        ceros23 = (minmaxarray[0] + minmaxarray[1])*2/3
-        oneAvgLen = (minmaxarray[2] + minmaxarray[3]) / 2
+        self.syncronize_pulses(bits_array)
         ones = 0
         ceros = 0
         for c in bits_array:
             if(c == '1'):
                 ones+= 1
                 if(ceros > 0):
-                    if(ceros <= ceros13):
+                    if(ceros <= self.ceros13):
                         morse += ''
-                    elif(ceros > ceros13 and ceros <= ceros23):
+                    elif(self.finDeLetra(ceros)):
                         morse += ' '
                     else:
                         morse += '   '
@@ -111,12 +117,30 @@ class MorseAPI():
             else:
                 ceros+= 1
                 if(ones > 0):
-                    if(ones <= oneAvgLen): # considero un punto
+                    if(ones <= self.oneAvgLen): # considero un punto
                         morse += '.'
                     else:
                         morse += '-'
                     ones = 0
         return morse
+
+    """
+        Funcion que hace la sincronizacion para saber los limites de senalizacion
+    """
+    def syncronize_pulses(self, bits_array):
+        minmaxarray = self.minMax(bits_array)
+        self.ceros13 = (minmaxarray[0] + minmaxarray[1])/3
+        self.ceros23 = (minmaxarray[0] + minmaxarray[1])*2/3
+        self.oneAvgLen = (minmaxarray[2] + minmaxarray[3]) / 2
+
+    def finDeLetra(self, ceros):
+        return ceros > self.ceros13 and ceros <= self.ceros23
+
+    def finDePalabra(self, ceros):
+        return ceros > self.ceros23
+
+    def finDeTransicion(self,ceros):
+        return ceros > 2 * self.ceros23
 
     """
         esta funcion me da la minima y maxima repeticion de ceros y unos
