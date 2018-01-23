@@ -12,7 +12,7 @@ def main():
     slow = "000000000000011111110000111111000011111000011111110000000000111111111111110000111111111110000011111111110000000011111100000111111111111000011111000111111000000000011111100001111111111111000000000000000000000001111111111000011111111110000000001111100000000011111100000111111111100011111000011111000000000011111000001111100000000000"
     medium = "00000000110110110011100000111111000111111001111110000000111011111111011101110000000110001111110000000001111110011111100000001100000110111111110111011100000011011100000000000"
     fast = "000000101011001100000111100111100111110000101111100110110000010011110000000111100111110001000011011111011010000110100000000000"
-
+    test_extermo = "0000000"
 
     print "Se testean diferentes velocidades para un mismo mensaje..."
 
@@ -22,8 +22,8 @@ def main():
     morseAPI.testApi(medium)
     print "-------------- FAST -----------------"
     morseAPI.testApi(fast)
-    ## testeo la api con una cadena binaria basica
-    #morseAPI.testApi(test_string)
+    ## testeo la api con una cadenas raras
+    morseAPI.testApi(test_extermo)
 
 
 class MorseAPI():
@@ -41,7 +41,7 @@ class MorseAPI():
     '.----':'1','..---':'2','...--':'3',
     '....-':'4','.....':'5','-....':'6',
     '--...':'7','---..':'8','----.':'9'}
-    
+
     inverseTable = {v : k for k, v in table.iteritems()}
 
     def __init__(self):
@@ -72,13 +72,25 @@ class MorseAPI():
         print "conversion inversa : " + morse + "EOS"
 
 
-    # uso strings para codificar 0 y 1 podria ser bits pero es mas facil para debugguear
+    # uso strings para codificar 0 y 1 podria ser bits pero es mas facil de visualizar. OPTIMO SERIA USAR BITS!
+
+    """
+        Funcion que busca decodificar una secuencia binaria a codigo morse.
+        La secuencia se asume no constante pero de representacion consistente.
+
+        Procedimiento:
+
+        Busco la maxima y minima repeticion de unos de un rango representativo.
+        Luego tomo el promedio y separo las longitudes, si es menor al promedio
+        es punto sino es raya.
+        Con los ceros debo hacer tres clasificaciones, entonces separo en tercios
+         y voy a clasificar de menor a mayor:
+        primer tercio : espacio entre punto o raya
+        segundo tercio : espacio entre caracteres
+        tercer tercio : espacio entre palabras
+    """
     def decodeBits2Morse(self,bits_array):
-        # asumo que tengo almenos un punto y una raya en la cadena, sino debo primero pedir al menos uno de ambos para sincronizarme.
-        # busco la maxima y minima repeticion de unos
-        # luego tomo el promedio y separo las longitudes, si es menor al promedio es punto sino es raya
-        # con los ceros debo hacer tres clasificaciones, entonces separo en tercios y voy a clasificar de menor a mayor.
-        # primer tercio : espacio entre punto o raya, segundo tercio : espacio entre caracteres y tercer tercio : espacio entre palabras
+
         morse = ''
         minmaxarray = self.minMax(bits_array)
         ceros13 = (minmaxarray[0] + minmaxarray[1])/3
@@ -107,20 +119,39 @@ class MorseAPI():
                     ones = 0
         return morse
 
-    # esta funcion me da la minima y maxima repeticion de ceros y unos (en ese orden)
+    """
+        esta funcion me da la minima y maxima repeticion de ceros y unos
+        (en ese orden)
+    """
     def minMax(self,bits_array):
         (ceroRepList,oneRepList) = self.repeticionList(bits_array)
-        ## saco los outliers para tener mejores minimos y maximos
-        ceroRepList = self.removeOutliers(ceroRepList)
-        oneRepList = self.removeOutliers(oneRepList)
+        ## saco los outliers para tener mejores minimos y maximos,
+        ## simpre y cuando haya al menos dos elementos
+        if(len(ceroRepList) > 2):
+            ceroRepList = self.removeOutliers(ceroRepList)
+        if(len(oneRepList) > 2):
+            oneRepList = self.removeOutliers(oneRepList)
         print "cero list filtrada: " + str(ceroRepList)
         print "unos list filtrada: " + str(oneRepList)
-        minCeros = ceroRepList[0]
-        minOnes = oneRepList[0]
-        maxCeros = ceroRepList[-1]
-        maxOnes = oneRepList[-1]
+
+        if(len(ceroRepList) > 0):
+            minCeros = ceroRepList[0]
+            maxCeros = ceroRepList[-1]
+        else:
+            minCeros=maxCeros=0
+
+        if(len(oneRepList) > 0):
+            minOnes = oneRepList[0]
+            maxOnes = oneRepList[-1]
+        else:
+            minOnes=maxOnes=0
 
         return [minCeros,maxCeros,minOnes,maxOnes]
+
+    """
+        Una funcion que ejecuta una forma de quitar elementos muy extremos
+        (outliers) altos y bajos para poder tomar un promedio mas representativo
+    """
 
     def removeOutliers(self,orderlist):
         q1 = np.median(orderlist[:int(len(orderlist)/2)])
@@ -131,7 +162,10 @@ class MorseAPI():
         orderlist = filter(lambda e: e > minlimit and e < maxlimit ,orderlist)
         return orderlist
 
-    # esta funcion me da la lista de repeticiones de ceros y unos ordenada de menor a mayor
+    """
+        esta funcion me da la lista de repeticiones de ceros y unos,
+        ordenada de menor a mayor, sin repeticiones
+    """
     def repeticionList(self,bits_array):
         ceroRepSet = Set()
         oneRepSet = Set()
@@ -164,21 +198,33 @@ class MorseAPI():
 
         return (ceroRepList,oneRepList)
 
+    """
+        Funcion que traduce una secuencia codigo morse a palabras legibles,
+        segun tabla de correspondencias dada
+        Unica convension por ser mas legible:
+        espacio entre palabras es de exactamente 3 espacios
+    """
     def translate2Human(self,morse_array):
         humanWords = ''
         words = morse_array.split('   ')
         for i,word in enumerate(words):
             if(word):
+                word.strip()
                 letterList = word.split()
                 for letter in letterList:
                     humanWords += self.morse2char(letter)
-            if(i < len(words)-1):
+            if(i < len(words)-1 and word != ''):
                 humanWords += ' '
 
         return humanWords
 
 
-
+    """
+        Funcion que traduce palabras legibles a una secuencia en codigo morse,
+        segun tabla de correspondencias dada.
+        Unica convension por ser mas legible:
+        espacio entre secuenias de codigo morse es de exactamente 3 espacios
+    """
     def translate2Morse(self,words):
         # Lista de palabras
         wordList = words.split()
@@ -192,14 +238,20 @@ class MorseAPI():
                 morse += '  '
         return morse
 
-
+    """
+        Funcion que obtiene el caracter correspondente a un determinado codigo morse.
+        Si no lo encuentra devuelve ?
+    """
     def morse2char(self,morse):
         try:
             return self.table[morse]
         except KeyError, e:
             return '?'
 
-
+    """
+        Funcion que obtiene el codigo morse correspondente a un determinado caracter.
+        Si no lo encuentra devuelve ?
+    """
     def char2morse(self,morse):
         try:
             return self.inverseTable[morse]
