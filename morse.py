@@ -2,7 +2,6 @@
 #imports
 import sys
 from sets import Set
-import numpy as np
 
 # main con casos de prueba simple
 def main():
@@ -154,13 +153,22 @@ class MorseAPI():
     """
 
     def removeOutliers(self,orderlist):
-        q1 = np.median(orderlist[:int(len(orderlist)/2)])
-        q3 = np.median(orderlist[int(len(orderlist)/2):])
+        q1 = self.median(orderlist[:int(len(orderlist)/2)])
+        q3 = self.median(orderlist[int(len(orderlist)/2):])
         iqr = q3 - q1
         maxlimit = q3 + 1*iqr
         minlimit = q1 - 1*iqr
         orderlist = filter(lambda e: e > minlimit and e < maxlimit ,orderlist)
         return orderlist
+
+    """
+        Funcion que me da la media de una lista ya ordenada
+    """
+    def median(self,orderlist):
+        if(len(orderlist) % 2 == 0): # si es impar
+            return ((orderlist[(len(orderlist)-1)/2] + orderlist[(len(orderlist)-1)/2 + 1]) / 2)
+        else:
+            return orderlist[(len(orderlist)-1)/2]
 
     """
         esta funcion me da la lista de repeticiones de ceros y unos,
