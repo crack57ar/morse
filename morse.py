@@ -140,7 +140,7 @@ class MorseAPI():
         return ceros > self.ceros23
 
     def finDeTransicion(self,ceros):
-        return ceros > 2 * self.ceros23
+        return ceros > 3 * self.ceros23
 
     """
         esta funcion me da la minima y maxima repeticion de ceros y unos

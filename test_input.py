@@ -38,6 +38,7 @@ def main(win):
 
     win.addstr("pulsos :",curses.A_BOLD)
     acumCeros = ''
+    acumPulses = ''
     start_time = time.time()
     while 1:
         try:
@@ -49,16 +50,17 @@ def main(win):
                 pulses += '1'
                 if(analogic):
                     acumCeros = ''
+                    acumPulses += '1'
             else:
                 if(elapsed_time >= pause_wait):
                     pulses += '0'
                     if(analogic):
                         acumCeros += '0'
-                        if(mapi.finDeLetra(len(acumCeros))):
-                            morse += mapi.decodeBits2Morse(pulses) + ' '
-                        elif(mapi.finDePalabra(len(acumCeros))):
-                            morse += '   '
-
+                        if(mapi.finDePalabra(len(acumCeros))):
+                            morse += mapi.decodeBits2Morse(acumPulses) + '   '
+                            acumPulses = ''
+                        else:
+                            acumPulses += '0'
                     start_time = time.time()
             win.addstr(pulses)
             if(analogic):
@@ -79,6 +81,7 @@ def main(win):
         human = mapi.translate2Human(morse)
         win.addstr(3,1,"palabras traducidas : " + human)
     else:
+        win.addstr(1,1,"codigo binario : " + pulses)
         win.addstr(2,1,"codigo morse : " + morse)
         human = mapi.translate2Human(morse)
         win.addstr(3,1,"palabras traducidas : " + human)
@@ -87,14 +90,13 @@ def main(win):
 
 def ask_for_preambule(win):
     preambule = ''
-    win.addstr("preambulo :",curses.A_BOLD)
+    win.addstr(2,1, "PREAMBULO : '.- .   .-' (AE A) : ",curses.A_BOLD)
     start_time = time.time()
     while 1:
         try:
             key = win.getch() # input del usuario
             win.clear()
-            win.addstr("preambulo :",curses.A_BOLD)
-
+            win.addstr(2,1, "PREAMBULO : '.- .   .-' (AE A) : ",curses.A_BOLD)
             if(key == 32): # espacio
                 preambule += '1'
             else:
