@@ -24,6 +24,9 @@ def main():
     ## testeo la api con una cadenas raras
     morseAPI.testApi(test_extermo)
 
+    morseAPI2 = MorseAPI(slow)
+    morseAPI2.testApi(slow)
+
 
 class MorseAPI():
     """docstring for Morse."""
@@ -46,6 +49,7 @@ class MorseAPI():
     ceros13 = 0
     ceros23 = 0
     oneAvgLen = 0
+    sync = False
 
     """
         Constructor que recibe un preambulo que consta de los simbolos '.- .   .-' (AE A)
@@ -54,6 +58,7 @@ class MorseAPI():
     def __init__(self,preambule):
         if(preambule != ''):
             self.syncronize_pulses(preambule)
+            self.sync = True
 
     def testApi(self,test_string):
 
@@ -100,7 +105,8 @@ class MorseAPI():
     def decodeBits2Morse(self,bits_array):
 
         morse = ''
-        self.syncronize_pulses(bits_array)
+        if(not self.sync):
+            self.syncronize_pulses(bits_array)
         ones = 0
         ceros = 0
         for c in bits_array:
