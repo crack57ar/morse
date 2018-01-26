@@ -20,6 +20,17 @@ Existe una opcion digital en la que al presionar cualquier otra tecla (menos ENT
 Al terminar se debe presionar ENTER y el sistema intentara decodificar en morse y luego a lenguaje humano (segun tabla aportada en el enunciado)
 Es un script de consola hecho con curses. 
 
+### bmorse.py
+
+Un script que genera, dado un texto, su representacion en pulsos binarios de codigo morse. Posee parametros de alatoriedad para simular el error humano. Si estos son muy altos puede desatar el caos!
+
+usage: bmorse.py [-h] [-v V] [-r R] [-s S]
+
+optional arguments:
+  -h, --help  show this help message and exit
+  -v V        los pulsos y pausas varian en +/- v
+  -r R        ritmo de transferencia de los pulsos
+  -s S        palabra a codificar
 
 ## API
 
