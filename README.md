@@ -25,6 +25,7 @@ Es un script de consola hecho con curses.
 Un script que genera, dado un texto, su representacion en pulsos binarios de codigo morse. Posee parametros de alatoriedad para simular el error humano. Si estos son muy altos puede desatar el caos!
 
 usage: bmorse.py [-h] [-v V] [-r R] [-s S]
+
 optional arguments:
 
   -h, --help  show this help message and exit
