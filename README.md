@@ -7,7 +7,7 @@ python 2.7
 
 ## Uso
 
-existen dos ejecutables : 
+existen tres ejecutables : 
 
 ### morse.py 
 
