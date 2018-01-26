@@ -109,6 +109,8 @@ class MorseAPI():
             self.syncronize_pulses(bits_array)
         ones = 0
         ceros = 0
+        # para incluir el ultimo conjunto de unos agrego un 0 inocuo
+        bits_array += '0'
         for c in bits_array:
             if(c == '1'):
                 ones+= 1
@@ -128,6 +130,7 @@ class MorseAPI():
                     else:
                         morse += '-'
                     ones = 0
+
         return morse
 
     """
