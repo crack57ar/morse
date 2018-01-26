@@ -163,8 +163,8 @@ class MorseAPI():
             ceroRepList = self.removeOutliers(ceroRepList)
         if(len(oneRepList) > 2):
             oneRepList = self.removeOutliers(oneRepList)
-        print "cero list filtrada: " + str(ceroRepList)
-        print "unos list filtrada: " + str(oneRepList)
+        #print "cero list filtrada: " + str(ceroRepList)
+        #print "unos list filtrada: " + str(oneRepList)
 
         if(len(ceroRepList) > 0):
             minCeros = ceroRepList[0]
